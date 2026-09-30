@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Customer {
@@ -18,7 +17,23 @@ model Customer {
 
   orders Order[]
 
+  @@index([lastName, firstName])
   @@map("customers")
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  name      String
+  sku       String   @unique
+  price     Decimal  @db.Decimal(10, 2)
+  stock     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@index([name])
+  @@map("products")
 }
 
 model Order {
@@ -28,7 +43,27 @@ model Order {
   total      Decimal  @db.Decimal(10, 2)
   customerId Int
 
-  customer Customer @relation(fields: [customerId], references: [id])
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items    OrderItem[]
 
+  @@index([customerId])
+  @@index([status])
+  @@index([orderDate])
   @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, productId])
+  @@index([productId])
+  @@map("order_items")
 }
