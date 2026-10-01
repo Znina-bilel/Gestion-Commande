@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Customer {
@@ -18,10 +17,12 @@ model Customer {
 
   orders Order[]
 
+  @@index([lastName, firstName])
   @@map("customers")
 }
 
 model Product {
+<<<<<<< HEAD
   id          Int      @id @default(autoincrement())
   name        String
   description String?
@@ -32,6 +33,19 @@ model Product {
 
   orderItems OrderItem[]
 
+=======
+  id        Int      @id @default(autoincrement())
+  name      String
+  sku       String   @unique
+  price     Decimal  @db.Decimal(10, 2)
+  stock     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@index([name])
+>>>>>>> 4c29de9bf427bb09b908c8d5cc22eccec9b6792a
   @@map("products")
 }
 
@@ -42,19 +56,36 @@ model Order {
   total      Decimal     @db.Decimal(10, 2)
   customerId Int
 
+<<<<<<< HEAD
   customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
   orderItems OrderItem[]
 
   @@index([customerId])
+=======
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items    OrderItem[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([orderDate])
+>>>>>>> 4c29de9bf427bb09b908c8d5cc22eccec9b6792a
   @@map("orders")
 }
 
 model OrderItem {
   id        Int     @id @default(autoincrement())
+<<<<<<< HEAD
   quantity  Int
   unitPrice Decimal @db.Decimal(10, 2)
   orderId   Int
   productId Int
+=======
+  orderId   Int
+  productId Int
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
+>>>>>>> 4c29de9bf427bb09b908c8d5cc22eccec9b6792a
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
